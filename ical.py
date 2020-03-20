@@ -24,10 +24,14 @@ class ICal(Calendar):
                     
     def add_event(self,uid,start,end,summary,**kwargs):
         """Ad an event to the calendar"""
+        if isinstance(start,str):
+            start = getDatetimeFromString(start)
+        if isinstance(end,str):
+            end = getDatetimeFromString(end)
         ev = Event()
         ev.add('uid',uid)
-        ev.add('dtstart',getDatetimeFromString(start))
-        ev.add('dtend',getDatetimeFromString(end))
+        ev.add('dtstart',start)
+        ev.add('dtend',end)
         ev.add('summary',summary)
 
         for key, value in kwargs.items():
