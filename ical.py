@@ -11,7 +11,6 @@ class ICal(Calendar):
         super().__init__(self)
         self.add('version','2.0')
         self.add('calscale','GREGORIAN')
-        self.events = []
         self.add('prodid',kwargs.get('prodid',site_config['HOST_NAME'].lower()))
         calendar_name = kwargs.get('calendar_name',None)
         if not calendar_name:
@@ -33,12 +32,14 @@ class ICal(Calendar):
         ev.add('dtstart',start)
         ev.add('dtend',end)
         ev.add('summary',summary)
-
+        
+        datestamp = kwargs.pop('dtstamp',datetime.utcnow())
+        ev.add('DTSTAMP',datestamp)
+        
         for key, value in kwargs.items():
          if value:
              ev.add(key,value)
-
-        ev.add('DTSTAMP',datetime.utcnow())
+             
         self.add_component(ev)
          
          
