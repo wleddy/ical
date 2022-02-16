@@ -35,42 +35,51 @@ class ICal(Calendar):
         
         datestamp = kwargs.pop('dtstamp',datetime.utcnow())
         ev.add('DTSTAMP',datestamp)
-        
+                
         for key, value in kwargs.items():
-         if value:
-             if key == 'reminder' and isinstance(value,(dict,bool)):
-                 """Insert a reminder stanza
-                     The value for 'reminder may be a dict or True or False
+            if value:
+                 if key == 'reminder' and isinstance(value,(dict,bool)):
+                     """Insert a reminder stanza
+                         The value for 'reminder may be a dict or True or False
                      
-                     if the key 'reminder' contains an empty dict or True the
-                     remnder will be set to the default of 30 minutes
-                     before the event start
+                         if the key 'reminder' contains an empty dict or True the
+                         remnder will be set to the default of 30 minutes
+                         before the event start
                      
-                     The reminder 'trigger' value may be a number of minutes, or a timedelta
+                         The reminder 'trigger' value may be a number of minutes, or a timedelta
                      
-                     If the value of 'reminder' is False, no reminder is set.
-                 """
+                         If the value of 'reminder' is False, no reminder is set.
+                     """
 
-                 if value == False:
-                     break
-                 if value == True:
-                     value = {}   
+                     if value == False:
+                         break
+                     if value == True:
+                         value = {}   
                  
-                 al = Alarm()
-                 rem = timedelta(minutes=-30) #30 minute default remindor
-                 if 'trigger' in value:
-                     if isinstance(value['trigger'],timedelta):
-                         rem = value['trigger']
-                     elif isinstance(value['trigger'],(int,float)):
-                         rem = timedelta(minutes=abs(value['trigger'])*-1)
+                     al = Alarm()
+                     rem = timedelta(minutes=-30) #30 minute default remindor
+                     if 'trigger' in value:
+                         if isinstance(value['trigger'],timedelta):
+                             rem = value['trigger']
+                         elif isinstance(value['trigger'],(int,float)):
+                             rem = timedelta(minutes=abs(value['trigger'])*-1)
                          
-                 al.add('TRIGGER',rem)
-                 al.add('ACTION',value.get('action','DISPLAY').upper())
-                 al.add('TITLE',value.get('title','Reminder').title())
-                 ev.add_component(al)
-             else:
-                 # a 'normal' value
-                 ev.add(key,value)
+                     al.add('TRIGGER',rem)
+                     al.add('ACTION',value.get('action','DISPLAY').upper())
+                     al.add('TITLE',value.get('title','Reminder').title())
+                     ev.add_component(al)
+                     
+                 elif key=='geo':
+                     # ensure that the lat and lng are present and of type float
+                     if isinstance(value,tuple) \
+                         and len(value) == 2 \
+                         and isinstance(value[0],(float,int)) \
+                         and isinstance(value[1],(float,int)):
+                             value = (float(value[0]),float(value[1]))
+                             ev.add(key,value)
+                 else:
+                     # a 'normal' value
+                     ev.add(key,value)
                  
         
         self.add_component(ev)
